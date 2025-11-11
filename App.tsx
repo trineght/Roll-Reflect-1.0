@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import SelfEvaluationCompass from './components/SelfEvaluationCompass';
 import DiceRoller from './components/DiceRoller';
 import InstructionGuide from './components/InstructionGuide';
+import FacilitatorGuide from './components/FacilitatorGuide';
 import StepIndicator from './components/ui/StepIndicator';
 import Footer from './components/ui/Footer';
 import { RollReflectLogo } from './components/ui/Icons';
@@ -16,6 +17,7 @@ function App() {
   const [initialScores, setInitialScores] = useState<number[] | null>(null);
   
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
+  const [isFacilitatorGuideOpen, setIsFacilitatorGuideOpen] = useState(false);
 
   const getRandomItem = (items: DieItem[]): DieItem => {
     return items[Math.floor(Math.random() * items.length)];
@@ -84,7 +86,13 @@ function App() {
                 scores={scores}
                 onScoreChange={handleScoreChange}
               />
-              <div className="flex justify-end">
+              <div className="flex justify-between items-center">
+                 <button
+                  onClick={() => setIsFacilitatorGuideOpen(true)}
+                  className="text-[#C00D0D] font-semibold py-2 px-6 rounded-md hover:bg-red-50 transition-colors"
+                >
+                    Til dig som facilitator
+                </button>
                 <button 
                   onClick={saveInitialScores}
                   className="bg-[#C00D0D] text-white font-semibold py-2 px-6 rounded-md hover:bg-[#a00a0a] transition-colors"
@@ -135,6 +143,10 @@ function App() {
         </div>
       </main>
       <Footer />
+      <FacilitatorGuide 
+          isOpen={isFacilitatorGuideOpen} 
+          onClose={() => setIsFacilitatorGuideOpen(false)} 
+      />
     </div>
   );
 }

@@ -1,20 +1,18 @@
-
 import type { Parameter, DieItem } from './types';
 
 export const SELF_EVALUATION_PARAMETERS: Parameter[] = [
-    { title: "Teknologisk anvendelse", description: "I hvilken grad oplever du, at analog og digital teknologi er ligeværdige og sammenflettede i min undervisning?" },
-    { title: "Didaktisk design", description: "Hvordan anvender jeg digitale og analoge teknologier udd fra et didaktisk og pædagogisk udgangspunkt?" },
-    { title: "Eksperimentering", description: "Hvor tryg føler du dig ved at afprøve nye teknologier, selv når resultatet er usikkert?" },
-    { title: "Fleksibilitet", description: "I hvilken grad kan jeg bevæge mig ubesværet mellem fysiske, hybride, blended og online læringsrum?" },
-    { title: "Teknologisk bevidsthed", description: "Forstår jeg formålet og potentialet bag de teknologier, jeg anvender - frem for blot deres funktion." },
-    { title: "Ledelsesopbakning", description: "Oplever jeg, at ledelsen prioriterer tid og ressourcer til, at udvikle digitale og postdigitale undervisningsformer?" },
-    { title: "Organisatorisk støtte", description: "Føler jeg mig inddraget i beslutninger om valg og implementering af nye systemer og platforme?" },
-    { title: "Tid og Ressourcer", description: "Har jeg realistisk tid og mulighed for at eksperimentere og reflektere over min praksis?" },
-    { title: "Tryghed og modstand", description: "Hvordan håndterer jeg usikkerhed eller modstand mod nye teknologiske tiltag." },
-    { title: "Alder og erfaring", description: "Hvordan påvirker min erfaring eller generation mit syn på digitale og analoge læringsformer?" },
-    { title: "Kollegial sparring", description: "Hvor ofte deltager jeg i struktureret sparring eller sidemandsoplæring med kollegaer om digital praksis?" },
-    { title: "Læringsfællesskaber", description: "Deltager jeg aktivt i fælles refleksion eller læringsfællesskaber, hvor vi udvikler vores didaktiske kompetencer?" },
-    { title: "Motivation for udvikling", description: "Hvor motiveret er jeg for kontinuerligt at udvikle mine pædagogiske og digitale kompetencer i fællesskab?" },
+    { title: "Didaktik først", description: "Anvender jeg digitale og analoge teknologier ud fra et didaktisk udgangspunkt?" },
+    { title: "Teknologi først", description: "Vælger jeg mine didaktiske metoder ud fra de teknologier, jeg anvender." },
+    { title: "Sammenflettet anvendelse", description: "Oplever jeg, at analog og digital teknologi er ligeværdige og sammenflettede i min undervisning?" },
+    { title: "Fleksibilitet", description: "Giver anvendelsen af digitale teknologier mig frihed og fleksibilitet i min undervisning?" },
+    { title: "Kontrol", description: "Giver anvendelsen af digitale teknologier mig kontrol i undervisningen?" },
+    { title: "Organisatorisk støtte", description: "Får jeg organisatorisk og ledelsesmæssigt opbakning til at udvikle mine undervisningsformer?" },
+    { title: "Tid og ressourcer", description: "Får jeg realistisk tid, ressourcer og mulighed for at eksperimentere og reflektere over min praksis som underviser?" },
+    { title: "Alder og erfaring", description: "Påvirker min erfaring og alder mit syn på at skulle anvende nye digitale og analoge undervisningsformer?" },
+    { title: "Læringsfællesskaber", description: "Søger jeg aktivt fælles idégenerering og refleksion for at udvikle mine didaktiske kompetencer?" },
+    { title: "Eksperimentering", description: "Føler jeg mig tryg ved at afprøve nye teknologier (analoge og digitale), selv når resultatet er usikkert?" },
+    { title: "Motivation for udvikling", description: "Er jeg motiveret for at udvikle mine didaktiske kompetencer i fællesskab med kollegaer?" },
+    { title: "Tryghed og modstand", description: "Håndterer jeg usikkerhed eller modstand mod nye teknologiske tiltag, der skal anvendes i min undervisning?" },
 ];
 
 export const DICE_DATA: { didactic: DieItem[], digital: DieItem[], analog: DieItem[] } = {

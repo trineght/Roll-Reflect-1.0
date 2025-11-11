@@ -110,9 +110,9 @@ const Compass: React.FC<CompassComponentProps> = ({ parameters, scores, onScoreC
                  const angle = (i / numParams) * 2 * Math.PI - Math.PI / 2;
                  return (
                      <g key={`interactive-${param.title}`}>
-                        {[...Array(numLevels + 1)].map((_, scoreValue) => {
+                        {[...Array(numLevels)].map((_, index) => {
+                            const scoreValue = index + 1;
                             const pointRadius = (scoreValue / numLevels) * radius;
-                            if (pointRadius === 0 && scoreValue !== 0) return null;
                             
                             const pX = center + pointRadius * Math.cos(angle);
                             const pY = center + pointRadius * Math.sin(angle);
@@ -147,7 +147,7 @@ const SelfEvaluationCompass: React.FC<SelfEvaluationCompassProps> = ({ parameter
     const title = initialScores ? "Slut-evaluering" : "Start-evaluering";
     const description = initialScores 
         ? 'Evaluer dig selv igen for at se din udvikling. Din oprindelige evaluering vises som en skygge.'
-        : 'Placer dig selv ved at klikke på punkterne fra 0 (centrum) til 5 (yderst) for hvert parameter.';
+        : 'Placer dig selv ved at klikke på punkterne fra 1 (inderst) til 5 (yderst) for hvert parameter.';
 
     const hoverInstruction = !initialScores ? 'Hold musen over et parameters navn for at læse en uddybende beskrivelse.' : null;
 
