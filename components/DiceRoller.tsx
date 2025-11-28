@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import type { DieItem, DiceResult, DiceCategory } from '../types';
+import { EDUCATIONS } from '../constants';
 import Card from './ui/Card';
 import Dice from './ui/Dice';
 
@@ -7,6 +9,12 @@ interface DiceRollerProps {
     onRoll: () => void;
     onSingleRoll: (category: DiceCategory) => void;
     result: DiceResult | null;
+    selectedEducation: string;
+    onEducationChange: (education: string) => void;
+    duration: string;
+    onDurationChange: (duration: string) => void;
+    groupSize: string;
+    onGroupSizeChange: (size: string) => void;
 }
 
 const ResultCard: React.FC<{ 
@@ -37,7 +45,17 @@ const ResultCard: React.FC<{
     </div>
 );
 
-const DiceRoller: React.FC<DiceRollerProps> = ({ onRoll, onSingleRoll, result }) => {
+const DiceRoller: React.FC<DiceRollerProps> = ({ 
+    onRoll, 
+    onSingleRoll, 
+    result, 
+    selectedEducation, 
+    onEducationChange,
+    duration,
+    onDurationChange,
+    groupSize,
+    onGroupSizeChange
+}) => {
     const [rollingCategory, setRollingCategory] = useState<DiceCategory | 'all' | null>(null);
     const [showResults, setShowResults] = useState(false);
 
@@ -71,9 +89,63 @@ const DiceRoller: React.FC<DiceRollerProps> = ({ onRoll, onSingleRoll, result })
 
     return (
         <Card>
-            <h2 className="text-2xl font-bold text-[#464646] mb-4">Terningespil</h2>
+            <h2 className="text-2xl font-bold text-[#464646] mb-4">Kast med terningerne</h2>
+            
+            {/* Education Selection Dropdown and Details */}
+            <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label htmlFor="education-select" className="block text-sm font-bold text-gray-700 mb-2">
+                    Professionshøjskole- og erhvervsakademiuddannelser
+                </label>
+                <select
+                    id="education-select"
+                    value={selectedEducation}
+                    onChange={(e) => onEducationChange(e.target.value)}
+                    className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#C00D0D] focus:border-[#C00D0D] sm:text-sm rounded-md bg-white border shadow-sm text-[#464646]"
+                >
+                    <option value="" disabled>Vælg uddannelse...</option>
+                    {EDUCATIONS.map((edu) => (
+                        <option key={edu} value={edu}>
+                            {edu}
+                        </option>
+                    ))}
+                </select>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label htmlFor="duration" className="block text-sm font-bold text-gray-700 mb-2">
+                            Varighed (minutter)
+                        </label>
+                        <input
+                            type="number"
+                            id="duration"
+                            value={duration}
+                            onChange={(e) => onDurationChange(e.target.value)}
+                            placeholder="Fx 45"
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C00D0D] focus:border-[#C00D0D] sm:text-sm bg-white text-[#464646]"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="groupSize" className="block text-sm font-bold text-gray-700 mb-2">
+                            Antal studerende
+                        </label>
+                        <input
+                            type="number"
+                            id="groupSize"
+                            value={groupSize}
+                            onChange={(e) => onGroupSizeChange(e.target.value)}
+                            placeholder="Fx 25"
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C00D0D] focus:border-[#C00D0D] sm:text-sm bg-white text-[#464646]"
+                        />
+                    </div>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-4">
+                    Når du vælger en uddannelse og angiver rammerne, genereres scenarier med udgangspunkt i den pågældende studieordning.
+                </p>
+            </div>
+
             {!result && (
-                <p className="text-[#464646] mb-6">Slå med terningerne for at få en kombination af en didaktisk metode, en digital teknologi og en analog teknologi til jeres næste undervisningsforløb.</p>
+                <p className="text-[#464646] mb-6">Slå med terningerne for at få en kombination af en didaktisk metode, en digital teknologi og en analog teknologi til dit næste undervisningsforløb.</p>
             )}
 
             <div className="flex justify-center items-center gap-4 sm:gap-6 my-8">
