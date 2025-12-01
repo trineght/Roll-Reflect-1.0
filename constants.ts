@@ -15,32 +15,6 @@ export const SELF_EVALUATION_PARAMETERS: Parameter[] = [
     { title: "Tryghed og modstand", description: "Håndterer jeg usikkerhed eller modstand mod nye teknologiske tiltag, der skal anvendes i min undervisning?" },
 ];
 
-export const EDUCATIONS = [
-    "Bioanalytiker",
-    "Bygningskonstruktør",
-    "Datamatiker",
-    "Ergoterapeut",
-    "Ernæring og Sundhed",
-    "Finansbachelor",
-    "Finansøkonom",
-    "Fysioterapeut",
-    "Handelsøkonom",
-    "Jordemoder",
-    "Laborant",
-    "Logistikøkonom",
-    "Lærer",
-    "Markedsføringsøkonom",
-    "Multimediedesigner",
-    "Offentlig administration",
-    "Produktionsteknolog",
-    "Pædagog",
-    "Radiograf",
-    "Serviceøkonom",
-    "Socialrådgiver",
-    "Sygeplejerske",
-    "Andet"
-];
-
 export const DICE_DATA: { didactic: DieItem[], digital: DieItem[], analog: DieItem[] } = {
     didactic: [
         { emoji: "💬", title: "Casebaseret læring", description: "Underviseren tager udgangspunkt i realistiske cases fra praksis for at skabe refleksion og dialog.", example: "En sygeplejerskestuderende analyserer et patientforløb, mens en finansøkonom arbejder med en kundecase fra bankverdenen." },

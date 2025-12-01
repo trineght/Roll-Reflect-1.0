@@ -1,31 +1,23 @@
+import React, { useState } from 'react';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI } from "@google/genai";
-
+import SelfEvaluationCompass from './components/SelfEvaluationCompass';
 import DiceRoller from './components/DiceRoller';
 import InstructionGuide from './components/InstructionGuide';
 import FacilitatorGuide from './components/FacilitatorGuide';
-import ScenarioDisplay from './components/ScenarioDisplay';
+import StepIndicator from './components/ui/StepIndicator';
 import Footer from './components/ui/Footer';
 import { RollReflectLogo } from './components/ui/Icons';
 
-import { DICE_DATA } from './constants';
+import { SELF_EVALUATION_PARAMETERS, DICE_DATA } from './constants';
 import type { DiceResult, DieItem, DiceCategory } from './types';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'educator' | 'facilitator'>('educator');
-  const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
-  const [selectedEducation, setSelectedEducation] = useState<string>('');
-  const [duration, setDuration] = useState<string>('');
-  const [groupSize, setGroupSize] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState(1);
+  const [scores, setScores] = useState<number[]>(() => Array(SELF_EVALUATION_PARAMETERS.length).fill(0));
+  const [initialScores, setInitialScores] = useState<number[] | null>(null);
   
-  // AI Generation State
-  const [scenario, setScenario] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState<string | null>(null);
-
-  // Debounce ref for scenario generation
-  const generationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
+  const [isFacilitatorGuideOpen, setIsFacilitatorGuideOpen] = useState(false);
 
   const getRandomItem = (items: DieItem[]): DieItem => {
     return items[Math.floor(Math.random() * items.length)];
@@ -49,181 +41,112 @@ function App() {
     });
   };
 
-  // AI Generation Effect
-  useEffect(() => {
-    if (!diceResult) return;
+  const handleScoreChange = (index: number, value: number) => {
+    const newScores = [...scores];
+    newScores[index] = value;
+    setScores(newScores);
+  };
 
-    // Clear previous timeout
-    if (generationTimeoutRef.current) {
-        clearTimeout(generationTimeoutRef.current);
-    }
+  const saveInitialScores = () => {
+    setInitialScores(scores);
+    setScores(Array(SELF_EVALUATION_PARAMETERS.length).fill(0));
+    setCurrentStep(2);
+  };
+  
+  const goToFinalEvaluation = () => {
+      setCurrentStep(3);
+  };
 
-    // Set a small delay to allow for UI updates (or multiple rapid clicks) to settle
-    generationTimeoutRef.current = setTimeout(async () => {
-        setIsGenerating(true);
-        setGenerationError(null);
-        
-        try {
-            if (!process.env.API_KEY) {
-                throw new Error("API Key mangler");
-            }
-
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
-            const educationContext = selectedEducation 
-                ? `for uddannelsen **${selectedEducation}**. Scenariet SKAL tage konkret udgangspunkt i denne uddannelses studieordning, fagbegreber og typiske praksissituationer.`
-                : "for en videregående uddannelse (professionsbachelor eller erhvervsakademi).";
-
-            const logisticsContext = [
-                duration ? `Varighed: ${duration} minutter.` : null,
-                groupSize ? `Holdstørrelse: ${groupSize} studerende.` : null
-            ].filter(Boolean).join(' ');
-
-            const prompt = `
-                Du er en pædagogisk konsulent og ekspert i didaktik på videregående uddannelser.
-                Lav et konkret, praksisnært og detaljeret undervisningsscenarie ${educationContext}
-                ${logisticsContext}
-
-                Scenariet skal kombinere følgende tre elementer som de bærende kræfter:
-                1. **Didaktisk metode:** ${diceResult.didactic.title} (${diceResult.didactic.description})
-                2. **Digital teknologi:** ${diceResult.digital.title} (${diceResult.digital.description})
-                3. **Analog teknologi:** ${diceResult.analog.title} (${diceResult.analog.description})
-
-                **Krav til output:**
-                - Vær meget konkret. Beskriv hvad de studerende gør, og hvad underviseren gør.
-                - Brug fagsprog der passer til ${selectedEducation || 'uddannelsen'}.
-                - Scenariet skal være realistisk at gennemføre inden for den angivne tidsramme (hvis angivet).
-
-                **Format:**
-                # [Giv scenariet en fængende titel]
-                **Kontekst:** Hvilket fag/semester/tema passer dette til?
-                **Læringsmål:** Hvad får de studerende ud af dette (koblet til kompetencemål)?
-                **Scenariet:** En levende beskrivelse af selve undervisningsgangen (Brug punktopstilling eller trin).
-                **Hvorfor virker det?:** En kort pædagogisk begrundelse for netop denne kombination af analogt og digitalt.
-            `;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-            });
-
-            if (response.text) {
-                setScenario(response.text);
-            } else {
-                throw new Error("Ingen svar fra AI");
-            }
-
-        } catch (err) {
-            console.error(err);
-            setGenerationError("Kunne ikke generere scenarie. Prøv igen eller tjek din forbindelse.");
-        } finally {
-            setIsGenerating(false);
-        }
-    }, 500); // 500ms debounce
-
-    return () => {
-        if (generationTimeoutRef.current) {
-            clearTimeout(generationTimeoutRef.current);
-        }
-    };
-  }, [diceResult, selectedEducation, duration, groupSize]);
-
+  const reset = () => {
+      setCurrentStep(1);
+      setInitialScores(null);
+      setScores(Array(SELF_EVALUATION_PARAMETERS.length).fill(0));
+      setDiceResult(null);
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans text-[#464646] flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-0">
-            <div className="flex items-center gap-3 mb-6">
-               <RollReflectLogo className="h-12 w-12 text-[#C00D0D]" />
+      <header className="pt-6 pb-10 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+            <div className="flex items-center gap-3">
+               <RollReflectLogo className="h-16 w-16 text-[#C00D0D]" />
                <h1 className="text-2xl font-bold text-[#464646]">Roll & Reflect</h1>
             </div>
-            
-            {/* Main Navigation Tabs */}
-            <div className="flex space-x-8">
-              <button
-                onClick={() => setActiveTab('educator')}
-                className={`pb-4 px-1 text-lg font-medium transition-colors relative ${
-                  activeTab === 'educator'
-                    ? 'text-[#C00D0D]'
-                    : 'text-gray-500 hover:text-[#464646]'
-                }`}
-              >
-                Til dig som underviser
-                {activeTab === 'educator' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C00D0D]" />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('facilitator')}
-                className={`pb-4 px-1 text-lg font-medium transition-colors relative ${
-                  activeTab === 'facilitator'
-                    ? 'text-[#C00D0D]'
-                    : 'text-gray-500 hover:text-[#464646]'
-                }`}
-              >
-                Til dig som facilitator
-                {activeTab === 'facilitator' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C00D0D]" />
-                )}
-              </button>
+            <div className="w-96">
+              <StepIndicator currentStep={currentStep} />
             </div>
         </div>
       </header>
-
       <main className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 flex-grow">
         <div className="max-w-4xl mx-auto space-y-8">
-          
-          {/* EDUCATOR VIEW */}
-          {activeTab === 'educator' && (
-            <div className="space-y-8 animate-fade-in">
+          {currentStep === 1 && (
+            <>
+              <SelfEvaluationCompass 
+                parameters={SELF_EVALUATION_PARAMETERS}
+                scores={scores}
+                onScoreChange={handleScoreChange}
+              />
+              <div className="flex justify-between items-center">
+                 <button
+                  onClick={() => setIsFacilitatorGuideOpen(true)}
+                  className="text-[#C00D0D] font-semibold py-2 px-6 rounded-md hover:bg-red-50 transition-colors"
+                >
+                    Til dig som facilitator
+                </button>
+                <button 
+                  onClick={saveInitialScores}
+                  className="bg-[#C00D0D] text-white font-semibold py-2 px-6 rounded-md hover:bg-[#a00a0a] transition-colors"
+                >
+                  Gem og fortsæt til trin 2
+                </button>
+              </div>
+            </>
+          )}
+          {currentStep === 2 && (
+            <>
               <DiceRoller 
                 onRoll={handleRoll}
                 onSingleRoll={handleSingleRoll}
                 result={diceResult}
-                selectedEducation={selectedEducation}
-                onEducationChange={setSelectedEducation}
-                duration={duration}
-                onDurationChange={setDuration}
-                groupSize={groupSize}
-                onGroupSizeChange={setGroupSize}
               />
-              
-              {diceResult && (
-                  <>
-                    <ScenarioDisplay 
-                        diceResult={diceResult} 
-                        scenario={scenario} 
-                        isLoading={isGenerating} 
-                        error={generationError} 
-                    />
-                    <InstructionGuide />
-                  </>
-              )}
-            </div>
+              <InstructionGuide />
+              <div className="flex justify-between items-center pt-4">
+                 <button onClick={reset} className="text-sm text-gray-500 hover:underline">Start forfra</button>
+                 <button
+                    onClick={goToFinalEvaluation}
+                    disabled={!diceResult}
+                    className="bg-[#C00D0D] text-white font-semibold py-2 px-6 rounded-md hover:bg-[#a00a0a] transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
+                 >
+                    Fortsæt til trin 3
+                </button>
+              </div>
+            </>
           )}
-
-          {/* FACILITATOR VIEW */}
-          {activeTab === 'facilitator' && (
-             <div className="animate-fade-in">
-               <FacilitatorGuide />
-             </div>
+          {currentStep === 3 && (
+            <>
+              <SelfEvaluationCompass 
+                parameters={SELF_EVALUATION_PARAMETERS}
+                scores={scores}
+                onScoreChange={handleScoreChange}
+                initialScores={initialScores}
+              />
+              <div className="flex justify-between items-center pt-4">
+                <button onClick={() => setCurrentStep(2)} className="text-[#C00D0D] font-semibold py-2 px-6 rounded-md hover:bg-red-50 transition-colors">
+                    Tilbage til trin 2
+                 </button>
+                 <button onClick={reset} className="bg-[#464646] text-white font-semibold py-2 px-6 rounded-md hover:bg-[#333333] transition-colors">
+                    Start forfra
+                 </button>
+              </div>
+            </>
           )}
-
         </div>
       </main>
-      
       <Footer />
-      
-      <style>{`
-        @keyframes fade-in {
-            0% { opacity: 0; transform: translateY(5px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.3s ease-out forwards;
-        }
-      `}</style>
+      <FacilitatorGuide 
+          isOpen={isFacilitatorGuideOpen} 
+          onClose={() => setIsFacilitatorGuideOpen(false)} 
+      />
     </div>
   );
 }
