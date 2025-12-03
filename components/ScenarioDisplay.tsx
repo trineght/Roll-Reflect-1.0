@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Card from './ui/Card';
 import { DiceResult } from '../types';
@@ -148,7 +149,10 @@ const ScenarioDisplay: React.FC<ScenarioDisplayProps> = ({ diceResult, scenario,
 
     return (
         <Card className="flex flex-col min-h-[300px]">
-            <h2 className="text-2xl font-bold text-[#464646] mb-4">AI-genereret scenarie</h2>
+            <h2 className="text-2xl font-bold text-[#464646] mb-2">AI-genereret scenarie</h2>
+            <p className="text-sm text-gray-500 italic mb-6">
+                (Husk dette er til inspiration, du kan sikkert komme op med et endnu bedre alternativ. Der kan desuden forekomme faktuelle fejl i scenariet - dobbelttjek med studieordning, læringsmål og selvfølgelig de studerendes læringsforudsætninger.)
+            </p>
             <div className="flex-grow flex items-center justify-center">
                 {renderContent()}
             </div>
